@@ -508,7 +508,7 @@ with col_date:
     c1, c2, c3 = st.columns([1, 1.4, 1])
     with c1:
         sel_day = st.selectbox("Ngày", options=list(range(1,32)),
-            index=0, label_visibility="collapsed", key="day_sel")
+            index=20, label_visibility="collapsed", key="day_sel")
     with c2:
         sel_month_idx = st.selectbox("Tháng", options=list(range(12)),
             index=5, format_func=lambda x: VIETNAMESE_MONTHS[x],
