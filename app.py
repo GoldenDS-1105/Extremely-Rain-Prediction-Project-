@@ -725,3 +725,26 @@ if predictions:
             <tbody>{rows_html}</tbody>
         </table>
     </div>""", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="margin-top:32px;padding:20px 28px;border-top:1.5px solid #e8dfc0;text-align:center;">
+        <div style="font-size:0.9rem;font-weight:600;color:#b8860b;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Nhóm thực hiện · DS107 · UIT</div>
+        <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;">
+            <div style="text-align:center;">
+                <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;">Phạm Nguyễn Minh Hiền</div>
+                <div style="font-size:0.9rem;color:#6b5510;">24520478</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;">Đoàn Thảo Vy</div>
+                <div style="font-size:0.9rem;color:#6b5510;">24522052</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;">Trần Hải Hoàng</div>
+                <div style="font-size:0.9rem;color:#6b5510;">24520567</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;">Nguyễn Việt Tiến</div>
+                <div style="font-size:0.9rem;color:#6b5510;">24521777</div>
+            </div>
+        </div>
+    </div>""", unsafe_allow_html=True)
