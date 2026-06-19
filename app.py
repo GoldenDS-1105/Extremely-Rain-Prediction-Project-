@@ -521,7 +521,7 @@ with col_date:
         if selected_date < date(2024, 1, 8):  selected_date = date(2024, 1, 8)
         if selected_date > date(2024, 12, 31): selected_date = date(2024, 12, 31)
     except ValueError:
-        selected_date = date(2024, 9, 21)
+        selected_date = date(2024, 6, 21)
 with col_info:
     _pre_level = get_level(get_predictions_for_date(selected_date.strftime('%Y-%m-%d')).get(
         st.session_state.get('sel_sid', '48852099999'), {}).get('prob', 0.0))
