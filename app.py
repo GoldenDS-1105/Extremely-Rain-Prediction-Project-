@@ -15,6 +15,114 @@ try:
 except:
     pass
 
+def cloud_svg(width, height, opacity, color, uid):
+    op_outer = round(opacity * 0.55, 2)
+    return (
+        '<svg width="' + str(width) + '" height="' + str(height) +
+        '" viewBox="0 0 400 160" xmlns="http://www.w3.org/2000/svg">'
+        '<defs>'
+        '<filter id="soft' + uid + '" x="-20%" y="-20%" width="140%" height="140%">'
+        '<feGaussianBlur stdDeviation="8"/></filter>'
+        '<radialGradient id="grad' + uid + '" cx="50%" cy="40%" r="60%">'
+        '<stop offset="0%" stop-color="' + color + '" stop-opacity="' + str(opacity) + '"/>'
+        '<stop offset="100%" stop-color="' + color + '" stop-opacity="' + str(op_outer) + '"/>'
+        '</radialGradient>'
+        '</defs>'
+        '<g filter="url(#soft' + uid + ')" fill="url(#grad' + uid + ')">'
+        '<ellipse cx="120" cy="100" rx="80" ry="45"/>'
+        '<ellipse cx="210" cy="75" rx="100" ry="58"/>'
+        '<ellipse cx="300" cy="95" rx="80" ry="48"/>'
+        '<ellipse cx="350" cy="108" rx="60" ry="36"/>'
+        '<ellipse cx="70"  cy="112" rx="55" ry="34"/>'
+        '</g></svg>'
+    )
+
+
+def sun_svg():
+    return (
+        '<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">'
+        '<defs>'
+        '<radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">'
+        '<stop offset="0%" stop-color="#fff4c0" stop-opacity="0.95"/>'
+        '<stop offset="60%" stop-color="#ffd84d" stop-opacity="0.7"/>'
+        '<stop offset="100%" stop-color="#ffb300" stop-opacity="0"/>'
+        '</radialGradient>'
+        '<filter id="sunBlur" x="-50%" y="-50%" width="200%" height="200%">'
+        '<feGaussianBlur stdDeviation="4"/></filter>'
+        '</defs>'
+        '<circle cx="90" cy="90" r="60" fill="url(#sunGrad)" filter="url(#sunBlur)"/>'
+        '<circle cx="90" cy="90" r="32" fill="#ffe26a" opacity="0.9"/>'
+        '</svg>'
+    )
+
+
+def make_raindrops(count, speed_range=(0.6, 1.2), opacity=0.5):
+    drops = []
+    for i in range(count):
+        left = (i * 37) % 100
+        delay = round((i * 0.13) % 2, 2)
+        duration = round(speed_range[0] + (i % 5) * (speed_range[1] - speed_range[0]) / 4, 2)
+        drops.append(
+            '<div style="position:absolute;left:' + str(left) + '%;top:-5%;'
+            'width:2px;height:18px;background:rgba(255,255,255,' + str(opacity) + ');'
+            'border-radius:2px;transform:rotate(8deg);'
+            'animation:drop-fall ' + str(duration) + 's linear ' + str(delay) + 's infinite;"></div>'
+        )
+    return ''.join(drops)
+
+
+def render_background(level):
+    if level == "danger":
+        d1 = cloud_svg(680, 240, 0.88, "#3a4456", "d1")
+        d2 = cloud_svg(700, 250, 0.90, "#3a4456", "d2")
+        d3 = cloud_svg(650, 230, 0.85, "#3a4456", "d3")
+        d4 = cloud_svg(620, 220, 0.80, "#2e3848", "d4")
+        d5 = cloud_svg(700, 250, 0.92, "#2e3848", "d5")
+        rain = make_raindrops(70, (0.5, 0.9), 0.65)
+        html = (
+            '<div id="app-bg" style="position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;'
+            'background:linear-gradient(180deg,#4a5a72 0%,#2d3a4f 100%);">'
+            '<div style="position:absolute;top:-5%;left:-10%;width:680px;animation:drift1 45s linear infinite;">' + d1 + '</div>'
+            '<div style="position:absolute;top:5%;left:-40%;width:700px;animation:drift2 60s linear infinite;">' + d2 + '</div>'
+            '<div style="position:absolute;top:-8%;left:10%;width:650px;animation:drift3 38s linear infinite;opacity:0.9;">' + d3 + '</div>'
+            '<div style="position:absolute;top:2%;left:-35%;width:620px;animation:drift4 55s linear infinite;opacity:0.85;">' + d4 + '</div>'
+            '<div style="position:absolute;top:-3%;right:-20%;width:700px;animation:drift1 70s linear 10s infinite;opacity:0.8;">' + d5 + '</div>'
+            + rain +
+            '</div>'
+        )
+    elif level == "warning":
+        w1 = cloud_svg(620, 220, 0.75, "#9aa5b8", "w1")
+        w2 = cloud_svg(550, 200, 0.65, "#9aa5b8", "w2")
+        w3 = cloud_svg(500, 180, 0.60, "#9aa5b8", "w3")
+        w4 = cloud_svg(580, 210, 0.70, "#9aa5b8", "w4")
+        rain = make_raindrops(35, (1.0, 1.5), 0.45)
+        html = (
+            '<div id="app-bg" style="position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;'
+            'background:linear-gradient(180deg,#6ec3f0 0%,#aee0f7 100%);">'
+            '<div style="position:absolute;top:0%;left:-30%;width:620px;animation:drift1 65s linear infinite;">' + w1 + '</div>'
+            '<div style="position:absolute;top:8%;left:-40%;width:550px;animation:drift2 85s linear infinite;opacity:0.9;">' + w2 + '</div>'
+            '<div style="position:absolute;top:-5%;left:-20%;width:500px;animation:drift3 50s linear infinite;opacity:0.8;">' + w3 + '</div>'
+            '<div style="position:absolute;top:12%;left:-50%;width:580px;animation:drift4 100s linear infinite;opacity:0.75;">' + w4 + '</div>'
+            + rain +
+            '</div>'
+        )
+    else:
+        s1 = cloud_svg(500, 200, 0.90, "#ffffff", "s1")
+        s2 = cloud_svg(400, 160, 0.75, "#ffffff", "s2")
+        s3 = cloud_svg(340, 140, 0.60, "#ffffff", "s3")
+        sun = sun_svg()
+        html = (
+            '<div id="app-bg" style="position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;'
+            'background:linear-gradient(180deg,#6ec3f0 0%,#aee0f7 100%);">'
+            '<div style="position:absolute;top:4%;right:5%;width:180px;animation:sun-pulse 6s ease-in-out infinite;">' + sun + '</div>'
+            '<div style="position:absolute;top:6%;left:-25%;width:500px;animation:drift1 70s linear infinite;">' + s1 + '</div>'
+            '<div style="position:absolute;top:20%;left:-35%;width:400px;animation:drift2 95s linear infinite;opacity:0.85;">' + s2 + '</div>'
+            '<div style="position:absolute;top:3%;left:-20%;width:340px;animation:drift3 55s linear infinite;opacity:0.65;">' + s3 + '</div>'
+            '</div>'
+        )
+    st.markdown(html, unsafe_allow_html=True)
+
+
 st.set_page_config(page_title="StreamWave Rain", page_icon="🌧️", layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
@@ -24,16 +132,16 @@ st.markdown("""
 html,body,[class*="css"],.stApp{font-family:'Inter',sans-serif;color:#1a1a1a;font-size:15px;}
 #MainMenu,footer,header{visibility:hidden;}
 .block-container{padding:0 !important;max-width:100% !important;}
-::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:#f5eed8;} ::-webkit-scrollbar-thumb{background:#e0c870;border-radius:4px;}
+::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:#d0e8f8;} ::-webkit-scrollbar-thumb{background:#4a9fd4;border-radius:4px;}
 
-/* NỀN */
+/* NỀN — xanh biển, transparent để dynamic background hiện qua */
 .stApp{
     background:
-        radial-gradient(circle at 10% 10%, rgba(255,180,50,0.50) 0%, transparent 40%),
-        radial-gradient(circle at 90% 20%, rgba(255,120,40,0.38) 0%, transparent 40%),
-        radial-gradient(circle at 30% 90%, rgba(255,210,70,0.45) 0%, transparent 45%),
-        radial-gradient(circle at 80% 80%, rgba(255,160,60,0.38) 0%, transparent 40%),
-        #fdf8f0 !important;
+        radial-gradient(circle at 10% 10%, rgba(30,120,220,0.45) 0%, transparent 40%),
+        radial-gradient(circle at 90% 20%, rgba(0,160,230,0.35) 0%, transparent 40%),
+        radial-gradient(circle at 30% 90%, rgba(60,140,240,0.38) 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(0,100,200,0.35) 0%, transparent 40%),
+        transparent !important;
     background-attachment:fixed !important;
 }
 
@@ -47,13 +155,13 @@ html,body,[class*="css"],.stApp{font-family:'Inter',sans-serif;color:#1a1a1a;fon
 section.main>div,.main>div{background:transparent !important;}
 
 /* HEADER */
-.app-header{background:linear-gradient(135deg,#ffffff 0%,#fff8e7 100%);border-bottom:2px solid #f0d890;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 24px rgba(200,160,40,0.10);}
-.app-title{font-family:'Space Grotesk',sans-serif;font-size:2.1rem;font-weight:700;color:#b8860b;letter-spacing:-0.02em;}
-.app-subtitle{font-size:1.1rem;font-weight:500;color:#6b5510;margin-top:2px;}
-.app-meta{font-size:1.05rem;color:#6b5510;text-align:right;}
+.app-header{background:linear-gradient(135deg,#ffffff 0%,#e8f4ff 100%);border-bottom:2px solid #b0d4f0;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 24px rgba(30,100,200,0.10);}
+.app-title{font-family:'Space Grotesk',sans-serif;font-size:2.1rem;font-weight:700;color:#1565c0;letter-spacing:-0.02em;}
+.app-subtitle{font-size:1.1rem;font-weight:500;color:#1a4a8a;margin-top:2px;}
+.app-meta{font-size:1.05rem;color:#1a4a8a;text-align:right;}
 
 /* RISK CARD */
-.risk-card{border-radius:16px;padding:22px;margin-bottom:14px;background:rgba(255,255,255,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border:1px solid rgba(255,255,255,0.75) !important;box-shadow:0 8px 32px rgba(180,130,20,0.15),0 2px 8px rgba(180,130,20,0.10) !important;transition:all 0.3s ease;}
+.risk-card{border-radius:16px;padding:22px;margin-bottom:14px;background:rgba(255,255,255,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border:1px solid rgba(255,255,255,0.75) !important;box-shadow:0 8px 32px rgba(20,90,180,0.15),0 2px 8px rgba(20,90,180,0.10) !important;transition:all 0.3s ease;}
 .risk-card.danger {background:rgba(255,230,235,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border-color:rgba(240,128,152,0.7) !important;}
 .risk-card.warning{background:rgba(255,245,215,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border-color:rgba(244,176,96,0.7) !important;}
 .risk-card.safe   {background:rgba(230,255,238,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border-color:rgba(112,208,160,0.7) !important;}
@@ -71,30 +179,30 @@ section.main>div,.main>div{background:transparent !important;}
 .badge-safe{background:#d8f4e8;color:#186040;border:1px solid #70d0a0;}
 
 /* GROUND TRUTH */
-.ground-truth{background:rgba(248,244,232,0.7);border-radius:10px;padding:14px 18px;font-size:1.2rem;display:flex;justify-content:space-between;align-items:center;border:1px solid #e8dfc0;}
+.ground-truth{background:rgba(225,242,255,0.7);border-radius:10px;padding:14px 18px;font-size:1.2rem;display:flex;justify-content:space-between;align-items:center;border:1px solid #b8d8f0;}
 .gt-label{color:#1a1a1a;font-weight:500;font-size:1.2rem;}
 .gt-correct{color:#186040;font-weight:600;font-size:1.2rem;}
 .gt-wrong{color:#a02040;font-weight:600;font-size:1.2rem;}
 .gt-unknown{color:#555555;font-style:italic;font-size:1.2rem;}
 
 /* FEATURE ROW */
-.feat-section-title{font-size:1.05rem;font-weight:700;color:#6b5510;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
-.feature-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e8dfc0;font-size:1.05rem;gap:8px;}
+.feat-section-title{font-size:1.05rem;font-weight:700;color:#1a4a8a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.feature-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #b8d8f0;font-size:1.05rem;gap:8px;}
 .feature-name{color:#1a1a1a;font-size:1.05rem;font-weight:600;flex:1;}
 .feature-desc{color:#3d3d3d;font-size:0.95rem;display:block;}
-.feature-bar-wrap{width:70px;background:#e8dfc0;border-radius:4px;height:5px;flex-shrink:0;}
-.feature-bar{height:5px;border-radius:4px;background:#d4a017;}
+.feature-bar-wrap{width:70px;background:#b8d8f0;border-radius:4px;height:5px;flex-shrink:0;}
+.feature-bar{height:5px;border-radius:4px;background:#2196f3;}
 .feature-value{color:#1a1a1a;font-weight:600;font-family:'Space Grotesk',monospace;font-size:1.1rem;flex-shrink:0;}
 
 /* WEATHER PANEL */
 .weather-panel{width:100%;height:100px;border-radius:14px;overflow:hidden;margin-bottom:14px;position:relative;}
 
 /* SUMMARY BOX */
-.summary-box{background:rgba(255,250,235,0.40) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-radius:14px;padding:18px 22px;border:1.5px solid rgba(232,223,192,0.8);margin-top:16px;box-shadow:0 8px 32px rgba(180,130,20,0.14),0 2px 8px rgba(180,130,20,0.08) !important;}
-.summary-title{font-size:1.15rem;font-weight:700;color:#6b5510;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;}
+.summary-box{background:rgba(225,242,255,0.40) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-radius:14px;padding:18px 22px;border:1.5px solid rgba(160,200,240,0.8);margin-top:16px;box-shadow:0 8px 32px rgba(20,90,180,0.14),0 2px 8px rgba(20,90,180,0.08) !important;}
+.summary-title{font-size:1.15rem;font-weight:700;color:#1a4a8a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;}
 .sum-table{width:100%;border-collapse:collapse;font-size:1.15rem;}
-.sum-table th{padding:9px 13px;text-align:left;color:#1a1a1a;font-weight:700;font-size:1.15rem;background:rgba(245,238,216,0.8);border-bottom:2px solid #e8dfc0;}
-.sum-table td{padding:8px 13px;border-bottom:1px solid #f0e8c8;color:#1a1a1a;font-size:1.15rem;}
+.sum-table th{padding:9px 13px;text-align:left;color:#1a1a1a;font-weight:700;font-size:1.15rem;background:rgba(200,228,255,0.8);border-bottom:2px solid #b8d8f0;}
+.sum-table td{padding:8px 13px;border-bottom:1px solid #c8e0f0;color:#1a1a1a;font-size:1.15rem;}
 .sum-table td:last-child{color:#1a1a1a;font-size:1.15rem;font-weight:600;}
 .sum-table tr:last-child td{border-bottom:none;}
 .sum-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:middle;}
@@ -105,19 +213,19 @@ section.main>div,.main>div{background:transparent !important;}
 .sum-grid{display:flex;gap:24px;margin-bottom:16px;}
 
 /* MAP BORDER */
-.map-border-wrap{border:2px solid #f0d890;border-radius:16px;overflow:hidden;padding:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);box-shadow:0 8px 32px rgba(200,160,40,0.12);}
+.map-border-wrap{border:2px solid #b0d4f0;border-radius:16px;overflow:hidden;padding:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);box-shadow:0 8px 32px rgba(30,100,200,0.12);}
 
 /* CALENDAR */
 [data-baseweb="calendar"]{font-family:'Inter',sans-serif !important;}
 [data-baseweb="calendar"] [data-testid="month-header"]{font-size:0.85rem !important;}
 
 /* DATE INPUT */
-div[data-testid="stDateInput"] input{background:#fdf8f0 !important;border:1.5px solid #e0c890 !important;color:#1a1a1a !important;border-radius:10px !important;}
+div[data-testid="stDateInput"] input{background:#f5f9ff !important;border:1.5px solid #90c4e8 !important;color:#1a1a1a !important;border-radius:10px !important;}
 
-/* ===== RADIO BUTTON — 1 BLOCK DUY NHẤT ===== */
+/* ===== RADIO BUTTON ===== */
 div[data-testid="stRadio"] label {
-    background:#fffdf5 !important;
-    border:2px solid #d4a017 !important;
+    background:#f5f9ff !important;
+    border:2px solid #2196f3 !important;
     border-radius:20px !important;
     padding:8px 20px !important;
     margin-right:8px !important;
@@ -130,14 +238,14 @@ div[data-testid="stRadio"] label * {
     opacity:1 !important;
 }
 div[data-testid="stRadio"] label:has(input:checked) {
-    background:#d4a017 !important;
-    border-color:#d4a017 !important;
+    background:#1976d2 !important;
+    border-color:#1976d2 !important;
 }
 div[data-testid="stRadio"] label:has(input:checked) * {
     color:#ffffff !important;
 }
 div[data-testid="stRadio"] label:hover:not(:has(input:checked)) {
-    background:#fff0b0 !important;
+    background:#e3f2fd !important;
 }
 div[data-testid="stRadio"] > div {
     display:flex !important;
@@ -147,10 +255,10 @@ div[data-testid="stRadio"] > div {
 }
 div[data-testid="stRadio"] input { display:none !important; }
 
-/* ===== SELECTBOX — 1 BLOCK DUY NHẤT ===== */
+/* ===== SELECTBOX ===== */
 div[data-testid="stSelectbox"] > div > div {
-    background:#fffdf5 !important;
-    border:2px solid #e0c890 !important;
+    background:#f5f9ff !important;
+    border:2px solid #90c4e8 !important;
     border-radius:10px !important;
 }
 div[data-testid="stSelectbox"] * {
@@ -158,26 +266,46 @@ div[data-testid="stSelectbox"] * {
     font-size:1.15rem !important;
 }
 div[data-baseweb="select"] > div {
-    background:#fffdf5 !important;
+    background:#f5f9ff !important;
     color:#1a1a1a !important;
 }
 ul[data-testid="stSelectboxVirtualDropdown"],
 div[data-baseweb="popover"],
 div[data-baseweb="menu"] {
-    background:#fffdf5 !important;
-    border:1px solid #e8dfc0 !important;
+    background:#f5f9ff !important;
+    border:1px solid #b8d8f0 !important;
 }
 ul[data-testid="stSelectboxVirtualDropdown"] li,
 div[data-baseweb="popover"] li,
 div[data-baseweb="menu"] li {
     color:#1a1a1a !important;
     font-size:1.15rem !important;
-    background:#fffdf5 !important;
+    background:#f5f9ff !important;
 }
 ul[data-testid="stSelectboxVirtualDropdown"] li:hover,
 div[data-baseweb="popover"] li:hover,
 div[data-baseweb="menu"] li:hover {
-    background:#fff0c0 !important;
+    background:#bbdefb !important;
+}
+
+/* ===== BACKGROUND ANIMATIONS ===== */
+@keyframes drop-fall{
+  0%{transform:translateY(0) rotate(8deg);opacity:0;}
+  8%{opacity:1;}92%{opacity:1;}
+  100%{transform:translateY(110vh) rotate(8deg);opacity:0;}
+}
+@keyframes drift1{from{transform:translateX(0);}to{transform:translateX(160vw);}}
+@keyframes drift2{from{transform:translateX(0);}to{transform:translateX(160vw);}}
+@keyframes drift3{from{transform:translateX(0);}to{transform:translateX(160vw);}}
+@keyframes drift4{from{transform:translateX(0);}to{transform:translateX(160vw);}}
+@keyframes sun-pulse{0%,100%{opacity:0.9;transform:scale(1);}50%{opacity:1;transform:scale(1.05);}}
+
+/* Mobile */
+@media(max-width:768px){
+  .app-title{font-size:1.5rem;}
+  .prob-number{font-size:3.5rem;}
+  .station-name{font-size:1.4rem;}
+  .sum-grid{flex-wrap:wrap;gap:12px;}
 }
 </style>
 """, unsafe_allow_html=True)
@@ -311,6 +439,11 @@ def get_level(prob):
     if prob >= 0.30: return "warning"
     return "safe"
 
+def get_text_colors(level):
+    if level == "danger":
+        return {"primary": "#ffffff", "secondary": "rgba(255,255,255,0.80)", "shadow": "0 1px 5px rgba(0,0,0,0.5)"}
+    return {"primary": "#1a1a1a", "secondary": "#3d3d3d", "shadow": "none"}
+
 def get_color(prob):
     return {"danger":"#d03050","warning":"#d08000","safe":"#207050"}[get_level(prob)]
 
@@ -321,27 +454,27 @@ def get_map_color(prob):
 def weather_html(level):
     if level == "danger":
         bg = "linear-gradient(180deg,#6080a0 0%,#405878 100%)"
-        label = "⛈️&nbsp; MƯA LỚN — NGUY HIỂM"
-        label_color = "rgba(255,230,240,0.95)"
+        label = "⛈️&nbsp; MƯA LỚN"
+        label_color = "rgba(255,255,255,0.95)"
         script = """
 var drops=[];for(var i=0;i<90;i++)drops.push({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.5+0.8,sp:Math.random()*5+7,op:Math.random()*0.6+0.3,len:Math.random()*10+8});
-function draw(){ctx.clearRect(0,0,W,H);drops.forEach(function(d){ctx.strokeStyle='rgba(180,215,255,'+d.op+')';ctx.lineWidth=d.s*0.6;ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x+d.len*0.4,d.y+d.len);ctx.stroke();d.y+=d.sp;d.x+=d.sp*0.3;if(d.y>H){d.y=-d.len;d.x=Math.random()*W;}});requestAnimationFrame(draw);}
+function draw(){ctx.clearRect(0,0,W,H);drops.forEach(function(d){ctx.strokeStyle='rgba(180,215,255,'+d.op+')';ctx.lineWidth=d.s*0.6;ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x+d.len*0.4,d.y+d.len);ctx.stroke();d.y+=d.sp;d.x+=d.sp*0.3;if(d.y>H){d.y=-d.len;d.x=Math.random()*W;}});setTimeout(function(){requestAnimationFrame(draw);},33);}
 """
     elif level == "warning":
         bg = "linear-gradient(180deg,#b0a080 0%,#907858 100%)"
-        label = "🌦️&nbsp; MƯA VỪA — CẢNH BÁO"
+        label = "🌦️&nbsp; MƯA VỪA"
         label_color = "rgba(255,240,200,0.95)"
         script = """
 var drops=[];for(var i=0;i<40;i++)drops.push({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.2+0.6,sp:Math.random()*3+4,op:Math.random()*0.4+0.2,len:Math.random()*7+5});
-function draw(){ctx.clearRect(0,0,W,H);drops.forEach(function(d){ctx.strokeStyle='rgba(200,220,255,'+d.op+')';ctx.lineWidth=d.s*0.5;ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x+d.len*0.3,d.y+d.len);ctx.stroke();d.y+=d.sp;d.x+=d.sp*0.2;if(d.y>H){d.y=-d.len;d.x=Math.random()*W;}});requestAnimationFrame(draw);}
+function draw(){ctx.clearRect(0,0,W,H);drops.forEach(function(d){ctx.strokeStyle='rgba(200,220,255,'+d.op+')';ctx.lineWidth=d.s*0.5;ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x+d.len*0.3,d.y+d.len);ctx.stroke();d.y+=d.sp;d.x+=d.sp*0.2;if(d.y>H){d.y=-d.len;d.x=Math.random()*W;}});setTimeout(function(){requestAnimationFrame(draw);},50);}
 """
     else:
         bg = "linear-gradient(180deg,#60b0e8 0%,#f0c840 100%)"
-        label = "☀️&nbsp; TRỜI NẮNG — AN TOÀN"
-        label_color = "rgba(80,40,0,0.9)"
+        label = "☀️&nbsp; TRỜI NẮNG"
+        label_color = "rgba(255,255,255,0.95)"
         script = """
 var angle=0;
-function draw(){ctx.clearRect(0,0,W,H);var cx=60,cy=H/2,r=24;ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);for(var i=0;i<12;i++){var a=i*Math.PI/6;ctx.strokeStyle='rgba(255,210,0,0.7)';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(Math.cos(a)*(r+6),Math.sin(a)*(r+6));ctx.lineTo(Math.cos(a)*(r+18),Math.sin(a)*(r+18));ctx.stroke();}ctx.restore();var g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba(255,240,100,0.95)');g.addColorStop(1,'rgba(255,190,0,0.8)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();angle+=0.01;requestAnimationFrame(draw);}
+function draw(){ctx.clearRect(0,0,W,H);var cx=60,cy=H/2,r=24;ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);for(var i=0;i<12;i++){var a=i*Math.PI/6;ctx.strokeStyle='rgba(255,210,0,0.7)';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(Math.cos(a)*(r+6),Math.sin(a)*(r+6));ctx.lineTo(Math.cos(a)*(r+18),Math.sin(a)*(r+18));ctx.stroke();}ctx.restore();var g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba(255,240,100,0.95)');g.addColorStop(1,'rgba(255,190,0,0.8)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();angle+=0.01;setTimeout(function(){requestAnimationFrame(draw);},50);}
 """
     uid = f"wc_{level}"
     return f"""<!DOCTYPE html><html><head>
@@ -390,7 +523,15 @@ with col_date:
     except ValueError:
         selected_date = date(2024, 9, 21)
 with col_info:
-    st.markdown(f"<div style='padding:9px 4px;font-size:0.95rem;color:#6b5510;'>08/01/2024 – 31/12/2024 &nbsp;·&nbsp; <b style='color:#c0306a;'>Đang xem: {selected_date.strftime('%d/%m/%Y')}</b></div>", unsafe_allow_html=True)
+    _pre_level = get_level(get_predictions_for_date(selected_date.strftime('%Y-%m-%d')).get(
+        st.session_state.get('sel_sid', '48852099999'), {}).get('prob', 0.0))
+    if _pre_level == "danger":
+        _dng_outer = "color:#ffffff;text-shadow:0 1px 4px rgba(0,0,0,0.5);"
+        _dng_bold  = "color:#ffffff;"
+    else:
+        _dng_outer = "color:#1a4a8a;"
+        _dng_bold  = "color:#1565c0;"
+    st.markdown(f"<div style='padding:9px 4px;font-size:0.95rem;{_dng_outer}'>08/01/2024 – 31/12/2024 &nbsp;·&nbsp; <b style='{_dng_bold}'>Đang xem: {selected_date.strftime('%d/%m/%Y')}</b></div>", unsafe_allow_html=True)
 
 st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
 
@@ -563,10 +704,10 @@ with map_col:
         folium.CircleMarker(
             location=[ilat, ilon],
             radius=7,
-            color="#c0306a", weight=2,
-            fill=True, fill_color="#e8306a", fill_opacity=0.5,
+            color="#1565c0", weight=2,
+            fill=True, fill_color="#2196f3", fill_opacity=0.5,
             tooltip=folium.Tooltip(
-                f"<b style='color:#c0306a'>{ilabel}</b><br>"
+                f"<b style='color:#1565c0'>{ilabel}</b><br>"
                 f"<span style='font-size:11px;color:#555'>{ipopup}</span>",
                 sticky=True,
             ),
@@ -578,10 +719,10 @@ with map_col:
             icon=folium.DivIcon(
                 html=(
                     f'<div style="font-family:Inter,sans-serif;font-size:11px;font-weight:700;'
-                    f'color:#c0306a;white-space:nowrap;'
+                    f'color:#1565c0;white-space:nowrap;'
                     f'background:rgba(255,255,255,0.90);padding:2px 7px;'
-                    f'border-radius:8px;border:1.5px solid #f0a0c8;'
-                    f'box-shadow:0 2px 6px rgba(200,80,120,0.18);'
+                    f'border-radius:8px;border:1.5px solid #90c4e8;'
+                    f'box-shadow:0 2px 6px rgba(30,100,200,0.18);'
                     f'transform:translate(12px,-8px);">'
                     f'🇻🇳 {ilabel}</div>'
                 ),
@@ -614,18 +755,24 @@ with map_col:
                         st.session_state.sel_sid = new_sid
                         st.rerun()
 
-    st.markdown("""<div style='display:flex;gap:18px;padding:7px 4px;font-size:1.15rem;color:#1a1a1a;font-weight:500;'>
+    _map_level = get_level(predictions.get(st.session_state.sel_sid, {}).get('prob', 0.0))
+    _dng = _map_level == "danger"
+    _click_color = "color:#ffffff;text-shadow:0 1px 4px rgba(0,0,0,0.5);" if _dng else "color:#1a4a8a;"
+    _legend_color = "color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" if _dng else "color:#1a1a1a;"
+    st.markdown(f"""<div style='display:flex;gap:18px;padding:7px 4px;font-size:1.15rem;font-weight:500;{_legend_color}'>
         <span><span style='color:#e83060;'>●</span> Nguy hiểm (≥54%)</span>
         <span><span style='color:#f09020;'>●</span> Cảnh báo (30–54%)</span>
         <span><span style='color:#30c070;'>●</span> An toàn (&lt;30%)</span>
-        <span style='margin-left:auto;color:#6b5510;'>Bấm vào trạm để xem chi tiết</span>
+        <span style='margin-left:auto;{_click_color}'>Bấm vào trạm để xem chi tiết</span>
     </div>""", unsafe_allow_html=True)
     st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
 
     active = {sid:f"{info['name']} · {info['province']}" for sid,info in STATION_INFO.items() if info['region'] in rf}
     sel_keys = list(active.keys())
     cur_idx = sel_keys.index(st.session_state.sel_sid) if st.session_state.sel_sid in sel_keys else 0
-    chosen = st.selectbox("Chọn trạm:",options=sel_keys,format_func=lambda x:active[x],index=cur_idx,key="ss2")
+    _label_style = "color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" if _dng else "color:#1a1a1a;"
+    st.markdown(f"<div style='font-size:1.05rem;font-weight:600;margin-bottom:4px;{_label_style}'>Chọn trạm:</div>", unsafe_allow_html=True)
+    chosen = st.selectbox("Chọn trạm:",options=sel_keys,format_func=lambda x:active[x],index=cur_idx,key="ss2",label_visibility="collapsed")
     if chosen != st.session_state.sel_sid:
         st.session_state.sel_sid = chosen; st.rerun()
 
@@ -639,14 +786,17 @@ with panel_col:
     level = get_level(prob)
     row_data = pred.get('row',None)
 
+    render_background(level)
+    tc = get_text_colors(level)
+
     components.html(weather_html(level), height=110)
 
     badge_text = "⚠️ NGUY HIỂM — MƯA CỰC ĐOAN" if level=="danger" else "⚡ CẢNH BÁO — MƯA VỪA" if level=="warning" else "✅ AN TOÀN"
     st.markdown(f"""<div class="risk-card {level}">
-        <div class="station-name">{info['name']}</div>
-        <div class="station-province">📍 {info['province']} &nbsp;·&nbsp; {selected_date.strftime('%d/%m/%Y')}</div>
-        <div class="prob-{level} prob-number">{prob*100:.1f}<span style='font-size:1.4rem;'>%</span></div>
-        <div style='color:#3d3d3d;font-size:0.92rem;margin-bottom:8px;'>xác suất mưa cực đoan (ngưỡng: 54%)</div>
+        <div class="station-name" style="color:{tc['primary']};text-shadow:{tc['shadow']};">{info['name']}</div>
+        <div class="station-province" style="color:{tc['secondary']};">📍 {info['province']} &nbsp;·&nbsp; {selected_date.strftime('%d/%m/%Y')}</div>
+        <div class="prob-{level} prob-number" style="text-shadow:{tc['shadow']};">{prob*100:.1f}<span style='font-size:1.4rem;'>%</span></div>
+        <div style='color:{tc['secondary']};font-size:0.92rem;margin-bottom:8px;'>xác suất mưa cực đoan (ngưỡng: 54%)</div>
         <span class="alert-badge badge-{level}">{badge_text}</span>
     </div>""", unsafe_allow_html=True)
 
@@ -663,7 +813,8 @@ with panel_col:
         st.markdown("""<div class="ground-truth"><span class="gt-label">Nhãn thực tế</span><span class="gt-unknown">Không đủ tin cậy</span></div>""", unsafe_allow_html=True)
 
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-    st.markdown('<div class="feat-section-title">📊 Tín hiệu quan trọng nhất</div>', unsafe_allow_html=True)
+    _feat_style = "color:#ffffff;text-shadow:0 1px 4px rgba(0,0,0,0.5);" if level == "danger" else ""
+    st.markdown(f'<div class="feat-section-title" style="{_feat_style}">📊 Tín hiệu quan trọng nhất</div>', unsafe_allow_html=True)
 
     if row_data is not None:
         try:
@@ -718,7 +869,7 @@ if predictions:
             <div class="sum-stat"><div class="sum-num" style="color:#c03050;">{len(danger_list)}</div><div class="sum-lbl">Nguy hiểm</div></div>
             <div class="sum-stat"><div class="sum-num" style="color:#c07000;">{len(warning_list)}</div><div class="sum-lbl">Cảnh báo</div></div>
             <div class="sum-stat"><div class="sum-num" style="color:#207050;">{len(safe_list)}</div><div class="sum-lbl">An toàn</div></div>
-            <div class="sum-stat"><div class="sum-num" style="color:#c0306a;">{len(predictions)}</div><div class="sum-lbl">Tổng trạm</div></div>
+            <div class="sum-stat"><div class="sum-num" style="color:#1565c0;">{len(predictions)}</div><div class="sum-lbl">Tổng trạm</div></div>
         </div>
         <table class="sum-table">
             <thead><tr><th>Trạm khí tượng</th><th style="text-align:right;">Xác suất mưa cực đoan</th><th>Mức độ</th></tr></thead>
@@ -727,24 +878,24 @@ if predictions:
     </div>""", unsafe_allow_html=True)
 
     st.markdown("""
-    <div style="margin-top:32px;padding:20px 28px;border-top:1.5px solid #e8dfc0;text-align:center;">
-        <div style="font-size:0.9rem;font-weight:600;color:#b8860b;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Nhóm thực hiện · DS107 · UIT</div>
+    <div style="margin-top:32px;padding:20px 28px;border-top:1.5px solid #b0d4f0;text-align:center;">
+        <div style="font-size:0.9rem;font-weight:600;color:#1565c0;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;">Nhóm thực hiện · DS107 · UIT</div>
         <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;">
             <div style="text-align:center;">
                 <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;">Phạm Nguyễn Minh Hiền</div>
-                <div style="font-size:0.9rem;color:#6b5510;">24520478</div>
+                <div style="font-size:0.9rem;color:#1a4a8a;">24520478</div>
             </div>
             <div style="text-align:center;">
                 <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;">Đoàn Thảo Vy</div>
-                <div style="font-size:0.9rem;color:#6b5510;">24522052</div>
+                <div style="font-size:0.9rem;color:#1a4a8a;">24522052</div>
             </div>
             <div style="text-align:center;">
                 <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;">Trần Hải Hoàng</div>
-                <div style="font-size:0.9rem;color:#6b5510;">24520567</div>
+                <div style="font-size:0.9rem;color:#1a4a8a;">24520567</div>
             </div>
             <div style="text-align:center;">
                 <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;">Nguyễn Việt Tiến</div>
-                <div style="font-size:0.9rem;color:#6b5510;">24521777</div>
+                <div style="font-size:0.9rem;color:#1a4a8a;">24521777</div>
             </div>
         </div>
     </div>""", unsafe_allow_html=True)
