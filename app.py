@@ -161,10 +161,10 @@ section.main>div,.main>div{background:transparent !important;}
 .app-meta{font-size:1.05rem;color:#1a4a8a;text-align:right;}
 
 /* RISK CARD */
-.risk-card{border-radius:16px;padding:22px;margin-bottom:14px;background:rgba(255,255,255,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border:1px solid rgba(255,255,255,0.75) !important;box-shadow:0 8px 32px rgba(20,90,180,0.15),0 2px 8px rgba(20,90,180,0.10) !important;transition:all 0.3s ease;}
-.risk-card.danger {background:rgba(255,230,235,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border-color:rgba(240,128,152,0.7) !important;}
-.risk-card.warning{background:rgba(255,245,215,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border-color:rgba(244,176,96,0.7) !important;}
-.risk-card.safe   {background:rgba(230,255,238,0.35) !important;backdrop-filter:blur(24px) saturate(200%) !important;-webkit-backdrop-filter:blur(24px) saturate(200%) !important;border-color:rgba(112,208,160,0.7) !important;}
+.risk-card{border-radius:16px;padding:22px;margin-bottom:14px;background:rgba(255,255,255,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border:1px solid rgba(255,255,255,0.30) !important;box-shadow:0 8px 32px rgba(0,0,0,0.15) !important;transition:all 0.3s ease;}
+.risk-card.danger {background:rgba(255,230,235,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-color:rgba(240,128,152,0.7) !important;}
+.risk-card.warning{background:rgba(255,245,215,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-color:rgba(244,176,96,0.7) !important;}
+.risk-card.safe   {background:rgba(230,255,238,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-color:rgba(112,208,160,0.7) !important;}
 
 /* PROB / STATION */
 .prob-number{font-family:'Space Grotesk',sans-serif;font-size:5.2rem;font-weight:700;line-height:1;margin:8px 0 4px;}
