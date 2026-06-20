@@ -6,7 +6,6 @@ import plotly.graph_objects as go
 from datetime import date
 import urllib.request
 import json as _json
-import streamlit.components.v1 as components
 import locale
 import folium
 from streamlit_folium import st_folium
@@ -161,10 +160,10 @@ section.main>div,.main>div{background:transparent !important;}
 .app-meta{font-size:1.05rem;color:#1a4a8a;text-align:right;}
 
 /* RISK CARD */
-.risk-card{border-radius:16px;padding:22px;margin-bottom:14px;background:rgba(255,255,255,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border:1px solid rgba(255,255,255,0.30) !important;box-shadow:0 8px 32px rgba(0,0,0,0.15) !important;transition:all 0.3s ease;}
+.risk-card{border-radius:16px;padding:22px;margin-bottom:14px;background:rgba(255,255,255,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border:1px solid rgba(255,255,255,0.30) !important;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.25),0 8px 32px rgba(0,0,0,0.15) !important;transition:all 0.3s ease;}
 .risk-card.danger {background:rgba(255,230,235,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-color:rgba(240,128,152,0.7) !important;}
 .risk-card.warning{background:rgba(255,245,215,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-color:rgba(244,176,96,0.7) !important;}
-.risk-card.safe   {background:rgba(230,255,238,0.18) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-color:rgba(112,208,160,0.7) !important;}
+.risk-card.safe   {background:rgba(255,250,230,0.22) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important;border-color:rgba(112,208,160,0.7) !important;}
 
 /* PROB / STATION */
 .prob-number{font-family:'Space Grotesk',sans-serif;font-size:5.2rem;font-weight:700;line-height:1;margin:8px 0 4px;}
@@ -175,7 +174,7 @@ section.main>div,.main>div{background:transparent !important;}
 /* BADGES */
 .alert-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-size:1.05rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;margin-top:8px;}
 .badge-danger{background:#fde0e8;color:#a02040;border:1px solid #f08098;}
-.badge-warning{background:#fef0d8;color:#a06000;border:1px solid #f4b060;}
+.badge-warning{background:#fce3b8;color:#8a4a00;border:1px solid #f4b060;font-weight:700;}
 .badge-safe{background:#d8f4e8;color:#186040;border:1px solid #70d0a0;}
 
 /* GROUND TRUTH */
@@ -328,70 +327,81 @@ STATION_INFO = {
     "48914099999": {"name":"Cà Mau",       "province":"Cà Mau",          "region":"Nam",   "lat": 9.183333,"lon":105.150000},
 }
 
-FEATURE_COLS = joblib.load("model_catboost.pkl").feature_names_
+DEPLOY_CONFIG = _json.load(open("deployment_config.json", encoding="utf-8"))
+FEATURE_COLS = DEPLOY_CONFIG["feature_cols"]
 
 FEATURE_META = {
-    'prcp_gsod_mm_lag1':("Lượng mưa trạm hôm qua (mm)","Mưa thực đo ngày t-1 — tín hiệu trực tiếp nhất"),
-    'prcp_gsod_mm_lag2':("Lượng mưa trạm 2 ngày trước (mm)","Mưa thực đo ngày t-2"),
-    'prcp_gsod_mm_lag3':("Lượng mưa trạm 3 ngày trước (mm)","Mưa thực đo ngày t-3"),
-    'prcp_gsod_mm_lag7':("Lượng mưa trạm 7 ngày trước (mm)","Mưa thực đo ngày t-7"),
-    'prcp_gsod_mm_roll3_sum':("Tổng mưa trạm 3 ngày (mm)","Lượng mưa tích lũy ngắn hạn"),
-    'prcp_gsod_mm_roll7_sum':("Tổng mưa trạm 7 ngày (mm)","Lượng mưa tích lũy 1 tuần"),
-    'prcp_gsod_mm_roll14_sum':("Tổng mưa trạm 14 ngày (mm)","Lượng mưa tích lũy 2 tuần"),
-    'prcp_gsod_mm_roll30_sum':("Tổng mưa trạm 30 ngày (mm)","Lượng mưa tích lũy 1 tháng"),
-    'precipitation_sum_lag1':("Mưa Open-Meteo hôm qua (mm)","Dự báo số trị từ Open-Meteo ngày t-1"),
-    'precipitation_sum_lag3':("Mưa Open-Meteo 3 ngày trước","Dự báo số trị từ Open-Meteo ngày t-3"),
-    'precipitation_sum_lag7':("Mưa Open-Meteo 7 ngày trước","Dự báo số trị từ Open-Meteo ngày t-7"),
-    'precipitation_sum_roll3_sum':("Tổng mưa OM 3 ngày (mm)","Mưa Open-Meteo tích lũy 3 ngày"),
-    'precipitation_sum_roll7_sum':("Tổng mưa OM 7 ngày (mm)","Mưa Open-Meteo tích lũy 1 tuần"),
-    'precipitation_sum_roll14_sum':("Tổng mưa OM 14 ngày (mm)","Mưa Open-Meteo tích lũy 2 tuần"),
+    'precip_lag_1d':("Lượng mưa trạm hôm qua (mm)","Mưa thực đo ngày t-1 — tín hiệu trực tiếp nhất"),
+    'precip_lag_2d':("Lượng mưa trạm 2 ngày trước (mm)","Mưa thực đo ngày t-2"),
+    'precip_lag_3d':("Lượng mưa trạm 3 ngày trước (mm)","Mưa thực đo ngày t-3"),
+    'precip_lag_4d':("Lượng mưa trạm 4 ngày trước (mm)","Mưa thực đo ngày t-4"),
+    'precip_lag_5d':("Lượng mưa trạm 5 ngày trước (mm)","Mưa thực đo ngày t-5"),
+    'precip_lag_6d':("Lượng mưa trạm 6 ngày trước (mm)","Mưa thực đo ngày t-6"),
+    'precip_lag_7d':("Lượng mưa trạm 7 ngày trước (mm)","Mưa thực đo ngày t-7"),
+    'precip_lag_14d':("Lượng mưa trạm 14 ngày trước (mm)","Mưa thực đo ngày t-14"),
+    'precip_lag_30d':("Lượng mưa trạm 30 ngày trước (mm)","Mưa thực đo ngày t-30"),
+    'precip_roll_sum_3d':("Tổng mưa 3 ngày (mm)","Lượng mưa tích lũy ngắn hạn"),
+    'precip_roll_mean_3d':("TB mưa 3 ngày (mm)","Trung bình mưa 3 ngày gần nhất"),
+    'precip_roll_sum_7d':("Tổng mưa 7 ngày (mm)","Lượng mưa tích lũy 1 tuần"),
+    'precip_roll_mean_7d':("TB mưa 7 ngày (mm)","Trung bình mưa 1 tuần"),
+    'precip_roll_sum_14d':("Tổng mưa 14 ngày (mm)","Lượng mưa tích lũy 2 tuần"),
+    'precip_roll_mean_14d':("TB mưa 14 ngày (mm)","Trung bình mưa 2 tuần"),
+    'precip_roll_sum_30d':("Tổng mưa 30 ngày (mm)","Lượng mưa tích lũy 1 tháng"),
+    'precip_roll_mean_30d':("TB mưa 30 ngày (mm)","Trung bình mưa 1 tháng"),
     'relative_humidity_2m_mean_lag1':("Độ ẩm không khí hôm qua (%)","Độ ẩm tương đối 2m — cao→dễ mưa"),
-    'relative_humidity_2m_mean_lag3':("Độ ẩm không khí 3 ngày trước (%)","Độ ẩm tương đối 2m ngày t-3"),
-    'relative_humidity_2m_mean_roll3_mean':("Độ ẩm TB 3 ngày (%)","Trung bình độ ẩm 3 ngày gần nhất"),
-    'relative_humidity_2m_mean_roll7_mean':("Độ ẩm TB 7 ngày (%)","Trung bình độ ẩm 1 tuần"),
+    'relative_humidity_2m_mean_lag2':("Độ ẩm không khí 2 ngày trước (%)","Độ ẩm tương đối 2m ngày t-2"),
+    'relative_humidity_2m_max':("Độ ẩm cực đại hôm nay (%)","Độ ẩm tương đối 2m, giá trị max trong ngày"),
+    'relative_humidity_2m_mean':("Độ ẩm TB hôm nay (%)","Độ ẩm tương đối 2m, giá trị mean trong ngày"),
     'dew_point_2m_mean_lag1':("Điểm sương hôm qua (°C)","Gần nhiệt độ→không khí bão hòa hơi nước"),
+    'dew_point_2m_mean_lag2':("Điểm sương 2 ngày trước (°C)","Điểm sương 2m ngày t-2"),
+    'dew_point_2m_max':("Điểm sương cực đại hôm nay (°C)","Điểm sương 2m, giá trị max trong ngày"),
+    'dew_point_2m_mean':("Điểm sương TB hôm nay (°C)","Điểm sương 2m, giá trị mean trong ngày"),
     'pressure_msl_mean_lag1':("Áp suất khí quyển hôm qua (hPa)","Giảm mạnh→hệ thống thấp áp, dễ mưa lớn"),
-    'pressure_msl_mean_roll7_std':("Biến động áp suất 7 ngày","Dao động lớn→thời tiết không ổn định"),
+    'pressure_msl_mean_lag2':("Áp suất khí quyển 2 ngày trước (hPa)","Áp suất mực biển ngày t-2"),
+    'pressure_msl_mean':("Áp suất khí quyển hôm nay (hPa)","Áp suất mực biển trung bình ngày hiện tại"),
+    'pressure_tendency_3d':("Xu hướng áp suất 3 ngày (hPa)","Giảm mạnh→front/thấp áp đang tới gần"),
+    'surface_pressure_mean':("Áp suất mặt đất TB (hPa)","Áp suất bề mặt trung bình ngày hiện tại"),
+    'dewpoint_tendency_3d':("Xu hướng điểm sương 3 ngày (°C)","Tăng nhanh→không khí ẩm dồn tới"),
     'cloud_cover_mean_lag1':("Mây che phủ hôm qua (%)","100%→trời mây dày, tiền đề mưa"),
-    'cloud_cover_mean_roll3_mean':("Mây che phủ TB 3 ngày (%)","Mây liên tục→tích tụ ẩm"),
-    'cloud_cover_mean_roll7_mean':("Mây che phủ TB 7 ngày (%)","Xu hướng mây che phủ 1 tuần"),
-    'temperature_2m_mean_lag1':("Nhiệt độ TB hôm qua (°C)","Nhiệt độ không khí 2m ngày t-1"),
-    'temperature_2m_min_lag1':("Nhiệt độ tối thấp hôm qua (°C)","Đêm mát→ngưng tụ hơi nước nhiều hơn"),
-    'temperature_2m_mean_roll7_std':("Biến động nhiệt độ 7 ngày","Dao động lớn→front lạnh/nóng đang hoạt động"),
-    'soil_moisture_0_to_7cm_mean_roll7_mean':("Độ ẩm đất mặt TB 7 ngày","Đất bão hòa→mưa thêm dễ gây ngập/lũ"),
-    'wind_gusts_10m_max_roll3_max':("Gió giật tối đa 3 ngày (km/h)","Gió mạnh→đối lưu mạnh, dễ mưa giông"),
-    'wet_spell_length':("Số ngày mưa liên tiếp trước đó","Chuỗi mưa dài→đất bão hòa, tăng rủi ro lũ"),
-    'coast_distance_km':("Khoảng cách đến bờ biển (km)","Gần biển→hơi ẩm dồi dào hơn"),
-    'enso_mei_current':("Chỉ số ENSO hiện tại","Dương=El Niño (khô), Âm=La Niña (ẩm/mưa)"),
-    'enso_mei_3m_lag':("Chỉ số ENSO 3 tháng trước","ENSO có độ trễ ảnh hưởng mưa ~3 tháng"),
-    'enso_phase':("Pha ENSO","el_nino / la_nina / neutral"),
-    'is_monsoon':("Mùa gió mùa","1=đang trong mùa gió mùa hoạt động"),
-    'day_of_year':("Ngày thứ trong năm","Tháng 9–11 là cao điểm lũ miền Trung"),
-    'year':("Năm",""),
-    'month_sin':("Mùa vụ (sin)","Mã hóa tuần hoàn tháng trong năm"),
-    'month_cos':("Mùa vụ (cos)","Mã hóa tuần hoàn tháng trong năm"),
+    'cloud_cover_mean_lag2':("Mây che phủ 2 ngày trước (%)","Mây che phủ ngày t-2"),
+    'cloud_cover_mean':("Mây che phủ hôm nay (%)","Mây che phủ trung bình ngày hiện tại"),
+    'temperature_2m_max':("Nhiệt độ cao nhất hôm nay (°C)","Nhiệt độ không khí 2m, giá trị max"),
+    'temperature_2m_min':("Nhiệt độ thấp nhất hôm nay (°C)","Đêm mát→ngưng tụ hơi nước nhiều hơn"),
+    'temperature_2m_mean':("Nhiệt độ TB hôm nay (°C)","Nhiệt độ không khí 2m, giá trị mean"),
+    'temp_diurnal_range':("Biên độ nhiệt ngày-đêm (°C)","Chênh lệch max-min→tính ổn định khí quyển"),
+    'temp_dewpoint_spread':("Khoảng cách nhiệt-điểm sương (°C)","Càng nhỏ→không khí càng gần bão hòa"),
+    'precipitable_water':("Lượng hơi nước khả mưa (mm)","Tổng hơi nước cột khí quyển có thể rơi thành mưa"),
+    'wind_speed_10m_max_lag1':("Gió tối đa hôm qua (km/h)","Tốc độ gió 10m, giá trị max ngày t-1"),
+    'wind_speed_10m_max_lag2':("Gió tối đa 2 ngày trước (km/h)","Tốc độ gió 10m, giá trị max ngày t-2"),
+    'wind_speed_10m_max':("Gió tối đa hôm nay (km/h)","Tốc độ gió 10m, giá trị max trong ngày"),
+    'wind_direction_10m_dominant':("Hướng gió chủ đạo (độ)","Hướng gió 10m phổ biến nhất trong ngày"),
+    'wind_gusts_10m_max':("Gió giật tối đa hôm nay (km/h)","Gió mạnh→đối lưu mạnh, dễ mưa giông"),
+    'wind_dir_sin':("Hướng gió (sin)","Mã hóa tuần hoàn hướng gió"),
+    'wind_dir_cos':("Hướng gió (cos)","Mã hóa tuần hoàn hướng gió"),
+    'wet_streak_days':("Số ngày mưa liên tiếp trước đó","Chuỗi mưa dài→đất bão hòa, tăng rủi ro lũ"),
+    'soil_moisture_0_to_7cm_mean':("Độ ẩm đất mặt hôm nay","Đất bão hòa→mưa thêm dễ gây ngập/lũ"),
+    'shortwave_radiation_sum':("Tổng xạ mặt trời hôm nay","Bức xạ thấp→khả năng nhiều mây/mưa"),
+    'et0_fao_evapotranspiration':("Bốc thoát hơi tham chiếu (mm)","ET0 FAO — liên quan cân bằng nước bề mặt"),
+    'dist_coast_km':("Khoảng cách đến bờ biển (km)","Gần biển→hơi ẩm dồi dào hơn"),
+    'latitude_om_actual':("Vĩ độ trạm (°N)","Vị trí địa lý — ảnh hưởng đặc trưng khí hậu vùng"),
+    'longitude_om_actual':("Kinh độ trạm (°E)","Vị trí địa lý"),
+    'station_idx':("Mã số trạm (encoded)","Định danh trạm dạng số cho model"),
+    'oni':("Chỉ số ONI (ENSO)","Dương=El Niño (khô hơn), Âm=La Niña (ẩm/mưa hơn)"),
+    'enso_el_nino':("Đang trong pha El Niño","1=ONI>0.5, xu hướng khô hơn"),
+    'enso_la_nina':("Đang trong pha La Niña","1=ONI<-0.5, xu hướng ẩm/mưa hơn"),
     'doy_sin':("Chu kỳ ngày (sin)","Mã hóa tuần hoàn ngày trong năm"),
     'doy_cos':("Chu kỳ ngày (cos)","Mã hóa tuần hoàn ngày trong năm"),
-    'koppen_Am':("Khí hậu nhiệt đới gió mùa","Köppen Am — mưa nhiều quanh năm"),
-    'koppen_Aw':("Khí hậu nhiệt đới xavan","Köppen Aw — mùa khô rõ rệt"),
-    'koppen_Cwa':("Khí hậu cận nhiệt đới","Köppen Cwa — mùa đông khô, hè nóng"),
-    'STATION':("Mã trạm khí tượng",""),
-    'LATITUDE':("Vĩ độ (°N)","Vị trí địa lý — ảnh hưởng đặc trưng khí hậu vùng"),
-    'LONGITUDE':("Kinh độ (°E)","Vị trí địa lý"),
-    'ELEVATION':("Độ cao (m)","Cao hơn→nhiệt độ thấp hơn, mưa địa hình"),
-    'season_label_mua_kho_bac':("Mùa khô miền Bắc","1=đang trong mùa khô miền Bắc"),
-    'season_label_mua_kho_nam':("Mùa khô miền Nam","1=đang trong mùa khô miền Nam"),
-    'season_label_mua_kho_trung':("Mùa khô miền Trung","1=đang trong mùa khô miền Trung"),
-    'season_label_mua_mua_bac':("Mùa mưa miền Bắc","1=đang trong mùa mưa miền Bắc"),
-    'season_label_mua_mua_nam':("Mùa mưa miền Nam","1=đang trong mùa mưa miền Nam"),
-    'season_label_mua_mua_trung':("Mùa mưa miền Trung","1=đang trong mùa mưa miền Trung"),
+    'month_sin':("Mùa vụ (sin)","Mã hóa tuần hoàn tháng trong năm"),
+    'month_cos':("Mùa vụ (cos)","Mã hóa tuần hoàn tháng trong năm"),
 }
 
-THRESHOLD = 0.54
+THRESHOLD_WARNING = DEPLOY_CONFIG["warning_threshold_mm"]   # 25mm — "Bạc"
+THRESHOLD_DANGER  = DEPLOY_CONFIG["danger_threshold_mm"]    # 50mm — "Vàng"
 
 @st.cache_resource
 def load_model():
-    return joblib.load("model_catboost.pkl")
+    # CatBoost chiếm ~100% trọng số ensemble Stage 2 -> dùng cho feature importance
+    return joblib.load(DEPLOY_CONFIG["stage2_model_files"]["catboost"])
 
 @st.cache_resource
 def load_province_geojson():
@@ -404,40 +414,36 @@ def load_province_geojson():
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("test_final.csv")
+    df = pd.read_csv("test_2024_predictions.csv")
+    df = df.rename(columns={'date':'DATE','station_id':'STATION'})
     df['DATE'] = pd.to_datetime(df['DATE'])
     df = df.sort_values(['STATION','DATE']).reset_index(drop=True)
-    if 'wet_spell_length' not in df.columns:
-        rain = df['prcp_gsod_mm_lag1'].fillna(0).gt(0.1)
-        not_rain_cs = (~rain).groupby(df['STATION']).cumsum()
-        df['wet_spell_length'] = rain.groupby([df['STATION'],not_rain_cs]).cumsum().astype(int)
     return df
 
 @st.cache_data
 def get_predictions_for_date(date_str):
     df = load_data()
-    model = load_model()
     day_df = df[df['DATE']==date_str].copy()
     if day_df.empty: return {}
     results = {}
     for _,row in day_df.iterrows():
         sid = str(int(row['STATION']))
         try:
-            X = row[FEATURE_COLS].to_frame().T
-            prob = float(model.predict_proba(X)[0][1])
-        except: prob = 0.0
+            mm_predicted = float(row['mm_predicted'])
+            stage1_prob = float(row['stage1_prob'])
+        except: mm_predicted, stage1_prob = 0.0, 0.0
         results[sid] = {
-            'prob': prob,
-            'rain_binary': row.get('rain_binary', np.nan),
-            'target_reliable': bool(row.get('target_reliable', False)),
+            'mm_predicted': mm_predicted,
+            'stage1_prob': stage1_prob,
+            'actual_mm': row.get('precip_tomorrow_actual', np.nan),
             'row': row
         }
     return results
 
-def get_level(prob):
-    if prob >= THRESHOLD: return "danger"
-    if prob >= 0.30: return "warning"
-    return "safe"
+def get_level(mm_predicted):
+    if mm_predicted >= THRESHOLD_DANGER:  return "danger"   # >=50mm
+    if mm_predicted >= THRESHOLD_WARNING: return "warning"  # 25-50mm
+    return "safe"                                            # <25mm
 
 def get_text_colors(level):
     if level == "danger":
@@ -495,7 +501,7 @@ st.markdown("""
     <div class="app-title">🌧️ StreamWave Rain</div>
     <div class="app-subtitle">Hệ thống dự báo mưa cực đoan · 15 trạm quan trắc · Việt Nam 2024</div>
   </div>
-  <div class="app-meta">Mô hình: CatBoost · Ngưỡng cảnh báo: 54% · AUC-PR: 0.336<br>Dữ liệu: GSOD + Open-Meteo · Tập kiểm tra: 2024</div>
+  <div class="app-meta">Mô hình: Hurdle 2 tầng (CatBoost) · Ngưỡng: 25mm / 50mm · MAE: 7.11mm<br>Dữ liệu: Open-Meteo · Dự báo D+1 · Tập kiểm tra: 2024</div>
 </div>""", unsafe_allow_html=True)
 
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
@@ -511,27 +517,27 @@ with col_date:
             index=20, label_visibility="collapsed", key="day_sel")
     with c2:
         sel_month_idx = st.selectbox("Tháng", options=list(range(12)),
-            index=5, format_func=lambda x: VIETNAMESE_MONTHS[x],
+            index=8, format_func=lambda x: VIETNAMESE_MONTHS[x],
             label_visibility="collapsed", key="month_sel")
     with c3:
         sel_year = st.selectbox("Năm", options=[2024],
             index=0, label_visibility="collapsed", key="year_sel")
     try:
         selected_date = date(sel_year, sel_month_idx + 1, sel_day)
-        if selected_date < date(2024, 1, 8):  selected_date = date(2024, 1, 8)
-        if selected_date > date(2024, 12, 31): selected_date = date(2024, 12, 31)
+        if selected_date < date(2024, 1, 1):  selected_date = date(2024, 1, 1)
+        if selected_date > date(2024, 12, 30): selected_date = date(2024, 12, 30)
     except ValueError:
-        selected_date = date(2024, 6, 21)
+        selected_date = date(2024, 9, 21)
 with col_info:
     _pre_level = get_level(get_predictions_for_date(selected_date.strftime('%Y-%m-%d')).get(
-        st.session_state.get('sel_sid', '48852099999'), {}).get('prob', 0.0))
+        st.session_state.get('sel_sid', '48852099999'), {}).get('mm_predicted', 0.0))
     if _pre_level == "danger":
         _dng_outer = "color:#ffffff;text-shadow:0 1px 4px rgba(0,0,0,0.5);"
         _dng_bold  = "color:#ffffff;"
     else:
         _dng_outer = "color:#1a4a8a;"
         _dng_bold  = "color:#1565c0;"
-    st.markdown(f"<div style='padding:9px 4px;font-size:0.95rem;{_dng_outer}'>08/01/2024 – 31/12/2024 &nbsp;·&nbsp; <b style='{_dng_bold}'>Đang xem: {selected_date.strftime('%d/%m/%Y')}</b></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='padding:9px 4px;font-size:0.95rem;{_dng_outer}'>01/01/2024 – 30/12/2024 &nbsp;·&nbsp; <b style='{_dng_bold}'>Đang xem: {selected_date.strftime('%d/%m/%Y')}</b></div>", unsafe_allow_html=True)
 
 st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
 
@@ -592,8 +598,8 @@ with map_col:
     province_geojson = load_province_geojson()
     if province_geojson:
         sel_prov_key = STATION_INFO[st.session_state.sel_sid]['province'].replace(' ', '')
-        prob_sel_p = predictions.get(st.session_state.sel_sid, {}).get('prob', 0.0)
-        lv_sel_p = get_level(prob_sel_p)
+        mm_sel_p = predictions.get(st.session_state.sel_sid, {}).get('mm_predicted', 0.0)
+        lv_sel_p = get_level(mm_sel_p)
         prov_fill = {"danger":"#dc3232","warning":"#dc9000","safe":"#30b870"}[lv_sel_p]
 
         def make_style(key, fill):
@@ -613,8 +619,8 @@ with map_col:
     for sid, info in STATION_INFO.items():
         if info['region'] not in rf: continue
         pred  = predictions.get(sid, {})
-        prob  = pred.get('prob', 0.0)
-        lv    = get_level(prob)
+        mm_pred = pred.get('mm_predicted', 0.0)
+        lv    = get_level(mm_pred)
         is_sel = (sid == st.session_state.sel_sid)
         c_map = {"danger":"#e83060","warning":"#f09020","safe":"#30c070"}
         fill_c = c_map[lv]
@@ -630,7 +636,7 @@ with map_col:
             tooltip=folium.Tooltip(
                 f"<b style='font-size:13px'>{info['name']}</b><br>"
                 f"<span style='color:#3d3d3d'>{info['province']}</span><br>"
-                f"Xác suất: <b style='color:{fill_c}'>{prob*100:.1f}%</b> {tip_icon}",
+                f"Dự báo: <b style='color:{fill_c}'>{mm_pred:.1f} mm</b> {tip_icon}",
                 sticky=True
             ),
         ).add_to(m)
@@ -755,14 +761,14 @@ with map_col:
                         st.session_state.sel_sid = new_sid
                         st.rerun()
 
-    _map_level = get_level(predictions.get(st.session_state.sel_sid, {}).get('prob', 0.0))
+    _map_level = get_level(predictions.get(st.session_state.sel_sid, {}).get('mm_predicted', 0.0))
     _dng = _map_level == "danger"
     _click_color = "color:#ffffff;text-shadow:0 1px 4px rgba(0,0,0,0.5);" if _dng else "color:#1a4a8a;"
     _legend_color = "color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,0.5);" if _dng else "color:#1a1a1a;"
     st.markdown(f"""<div style='display:flex;gap:18px;padding:7px 4px;font-size:1.15rem;font-weight:500;{_legend_color}'>
-        <span><span style='color:#e83060;'>●</span> Nguy hiểm (≥54%)</span>
-        <span><span style='color:#f09020;'>●</span> Cảnh báo (30–54%)</span>
-        <span><span style='color:#30c070;'>●</span> An toàn (&lt;30%)</span>
+        <span><span style='color:#e83060;'>●</span> Nguy hiểm (≥50mm)</span>
+        <span><span style='color:#f09020;'>●</span> Cảnh báo (25–50mm)</span>
+        <span><span style='color:#30c070;'>●</span> An toàn (&lt;25mm)</span>
         <span style='margin-left:auto;{_click_color}'>Bấm vào trạm để xem chi tiết</span>
     </div>""", unsafe_allow_html=True)
     st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
@@ -780,31 +786,29 @@ with panel_col:
     sid = st.session_state.sel_sid
     info = STATION_INFO[sid]
     pred = predictions.get(sid,{})
-    prob = pred.get('prob',0.0)
-    rain_binary = pred.get('rain_binary',np.nan)
-    target_reliable = pred.get('target_reliable',False)
-    level = get_level(prob)
+    mm_predicted = pred.get('mm_predicted',0.0)
+    actual_mm = pred.get('actual_mm',np.nan)
+    level = get_level(mm_predicted)
     row_data = pred.get('row',None)
 
     render_background(level)
     tc = get_text_colors(level)
 
-    components.html(weather_html(level), height=110)
+    st.iframe(weather_html(level), height=110)
 
-    badge_text = "⚠️ NGUY HIỂM — MƯA CỰC ĐOAN" if level=="danger" else "⚡ CẢNH BÁO — MƯA VỪA" if level=="warning" else "✅ AN TOÀN"
+    badge_text = "⚠️ NGUY HIỂM — MƯA RẤT LỚN (≥50mm)" if level=="danger" else "⚡ CẢNH BÁO — MƯA LỚN (25–50mm)" if level=="warning" else "✅ AN TOÀN"
     st.markdown(f"""<div class="risk-card {level}">
         <div class="station-name" style="color:{tc['primary']};text-shadow:{tc['shadow']};">{info['name']}</div>
         <div class="station-province" style="color:{tc['secondary']};">📍 {info['province']} &nbsp;·&nbsp; {selected_date.strftime('%d/%m/%Y')}</div>
-        <div class="prob-{level} prob-number" style="text-shadow:{tc['shadow']};">{prob*100:.1f}<span style='font-size:1.4rem;'>%</span></div>
-        <div style='color:{tc['secondary']};font-size:0.92rem;margin-bottom:8px;'>xác suất mưa cực đoan (ngưỡng: 54%)</div>
+        <div class="prob-{level} prob-number" style="text-shadow:{tc['shadow']};">{mm_predicted:.1f}<span style='font-size:1.4rem;'> mm</span></div>
+        <div style='color:{tc['secondary']};font-size:0.92rem;margin-bottom:8px;'>lượng mưa dự báo ngày mai (ngưỡng cảnh báo: 25mm / 50mm)</div>
         <span class="alert-badge badge-{level}">{badge_text}</span>
     </div>""", unsafe_allow_html=True)
 
-    if target_reliable and not (isinstance(rain_binary,float) and np.isnan(rain_binary)):
-        actual = int(float(rain_binary))
-        predicted = 1 if prob>=THRESHOLD else 0
-        is_correct = (actual==predicted)
-        actual_text = "🌧️ Thực tế: Có mưa cực đoan" if actual==1 else "☀️ Thực tế: Không mưa"
+    if not (isinstance(actual_mm,float) and np.isnan(actual_mm)):
+        actual_level = get_level(float(actual_mm))
+        is_correct = (actual_level==level)
+        actual_text = f"🌧️ Thực tế: {float(actual_mm):.1f} mm"
         st.markdown(f"""<div class="ground-truth">
             <span class="gt-label">{actual_text}</span>
             <span class="{'gt-correct' if is_correct else 'gt-wrong'}">{'✓ Dự báo đúng' if is_correct else '✗ Dự báo sai'}</span>
@@ -847,9 +851,9 @@ with panel_col:
 
 # ── BẢNG TỔNG QUAN DƯỚI MAP (full width) ────────────────────────────────────
 if predictions:
-    danger_list = sorted([(sid,STATION_INFO[sid]['name'],p.get('prob',0)) for sid,p in predictions.items() if get_level(p.get('prob',0))=="danger" and sid in STATION_INFO],key=lambda x:-x[2])
-    warning_list= sorted([(sid,STATION_INFO[sid]['name'],p.get('prob',0)) for sid,p in predictions.items() if get_level(p.get('prob',0))=="warning" and sid in STATION_INFO],key=lambda x:-x[2])
-    safe_list   = sorted([(sid,STATION_INFO[sid]['name'],p.get('prob',0)) for sid,p in predictions.items() if get_level(p.get('prob',0))=="safe" and sid in STATION_INFO],key=lambda x:-x[2])
+    danger_list = sorted([(sid,STATION_INFO[sid]['name'],p.get('mm_predicted',0)) for sid,p in predictions.items() if get_level(p.get('mm_predicted',0))=="danger" and sid in STATION_INFO],key=lambda x:-x[2])
+    warning_list= sorted([(sid,STATION_INFO[sid]['name'],p.get('mm_predicted',0)) for sid,p in predictions.items() if get_level(p.get('mm_predicted',0))=="warning" and sid in STATION_INFO],key=lambda x:-x[2])
+    safe_list   = sorted([(sid,STATION_INFO[sid]['name'],p.get('mm_predicted',0)) for sid,p in predictions.items() if get_level(p.get('mm_predicted',0))=="safe" and sid in STATION_INFO],key=lambda x:-x[2])
 
     rows_html = ""
     for items,dot_color,lv_label in [(danger_list,"#e83060","Nguy hiểm"),(warning_list,"#f09020","Cảnh báo"),(safe_list,"#30c070","An toàn")]:
@@ -858,7 +862,7 @@ if predictions:
                 <td style="padding:8px 14px;border-bottom:1px solid #f8e0ee;">
                     <span class="sum-dot" style="background:{dot_color};"></span>{name}
                 </td>
-                <td style="padding:8px 14px;text-align:right;font-weight:700;color:{dot_color};border-bottom:1px solid #f8e0ee;">{pv*100:.1f}%</td>
+                <td style="padding:8px 14px;text-align:right;font-weight:700;color:{dot_color};border-bottom:1px solid #f8e0ee;">{pv:.1f} mm</td>
                 <td style="padding:8px 14px;font-size:1.0rem;color:#1a1a1a;font-weight:600;border-bottom:1px solid #f8e0ee;">{lv_label}</td>
             </tr>"""
 
@@ -872,7 +876,7 @@ if predictions:
             <div class="sum-stat"><div class="sum-num" style="color:#1565c0;">{len(predictions)}</div><div class="sum-lbl">Tổng trạm</div></div>
         </div>
         <table class="sum-table">
-            <thead><tr><th>Trạm khí tượng</th><th style="text-align:right;">Xác suất mưa cực đoan</th><th>Mức độ</th></tr></thead>
+            <thead><tr><th>Trạm khí tượng</th><th style="text-align:right;">Lượng mưa dự báo (mm)</th><th>Mức độ</th></tr></thead>
             <tbody>{rows_html}</tbody>
         </table>
     </div>""", unsafe_allow_html=True)
